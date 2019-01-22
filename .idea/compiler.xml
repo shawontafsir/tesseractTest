@@ -20,7 +20,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="tesseractProject" target="1.5" />
+      <module name="tesseractProject" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

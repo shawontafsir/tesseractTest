@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.effect.Light.Point;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -23,7 +24,7 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+//import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -31,27 +32,62 @@ import java.io.IOException;
 public class Main extends Application {
     Stage stage;
     Controller controller;
+    Parent root;
+    Rectangle selection = new Rectangle();
+    final Point anchor = new Point();
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/sample.fxml"));
-        Parent root = loader.load();
+        root = loader.load();
+
         // or   Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("sample.fxml"));
 
         controller = loader.getController();
         controller.setMain(this);
 
         primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 500, 400));
+        primaryStage.setScene(new Scene(root, 1000, 600));
         primaryStage.show();
         stage = primaryStage;
-    }
 
+        controller.imageView.setOnMousePressed(event -> {
+            anchor.setX(event.getX());
+            anchor.setY(event.getY());
+            selection.setX(event.getX());
+            selection.setY(event.getY());
+            selection.setFill(null); // transparent
+            selection.setStroke(Color.BLACK); // border
+            selection.getStrokeDashArray().add(10.0);
+            //root.getChildren().add(selection);
+        });
+
+        controller.imageView.setOnMouseDragged(event -> {
+            selection.setWidth(Math.abs(event.getX() - anchor.getX()));
+            selection.setHeight(Math.abs(event.getY() - anchor.getY()));
+            selection.setX(Math.min(anchor.getX(), event.getX()));
+            selection.setY(Math.min(anchor.getY(), event.getY()));
+        });
+
+        controller.imageView.setOnMouseReleased(event -> {
+            // Do what you want with selection's properties here
+            System.out.printf("X: %.2f, Y: %.2f, Width: %.2f, Height: %.2f%n",
+                    selection.getX(), selection.getY(), selection.getWidth(), selection.getHeight());
+            //root.getChildren().remove(selection);
+            controller.selection = this.selection;
+
+            //selection.setWidth(0);
+            //selection.setHeight(0);
+        });
+
+    }
 
     public static void main(String[] args) {
         launch(args);
     }
+
+
 
 //    private void crop( Bounds bounds) {
 //
